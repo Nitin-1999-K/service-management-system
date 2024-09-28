@@ -21,8 +21,7 @@ def get_db() -> Session:
 
 
 def get_current_user(
-    db: Session = Depends(get_db), 
-    token: str = Depends(oauth2_bearer)
+    db: Session = Depends(get_db), token: str = Depends(oauth2_bearer)
 ):
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
@@ -44,8 +43,7 @@ def get_current_user(
 
 
 def get_current_active_user(
-    token: str = Depends(oauth2_bearer), 
-    db: Session = Depends(get_db)
+    token: str = Depends(oauth2_bearer), db: Session = Depends(get_db)
 ):
     user = get_current_user(db=db, token=token)
     if user.status_code == 1:
@@ -53,9 +51,17 @@ def get_current_active_user(
     raise HTTPException(404, "User not found")
 
 
+def get_current_engineer(
+    token: str = Depends(oauth2_bearer), db: Session = Depends(get_db)
+):
+    user = get_current_active_user(db=db, token=token)
+    if user.user_type == 3:
+        return user
+    raise HTTPException(403, "Only service engineers can access this url")
+
+
 def get_current_head(
-    token: str = Depends(oauth2_bearer), 
-    db: Session = Depends(get_db)
+    token: str = Depends(oauth2_bearer), db: Session = Depends(get_db)
 ):
     user = get_current_active_user(db=db, token=token)
     if user.user_type <= 2:
@@ -64,8 +70,7 @@ def get_current_head(
 
 
 def get_current_admin(
-    token: str = Depends(oauth2_bearer), 
-    db: Session = Depends(get_db)
+    token: str = Depends(oauth2_bearer), db: Session = Depends(get_db)
 ):
     user = get_current_active_user(db=db, token=token)
     if user.user_type == 1:

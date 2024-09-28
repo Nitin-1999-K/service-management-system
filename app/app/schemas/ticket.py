@@ -1,7 +1,16 @@
 from pydantic import BaseModel
+from datetime import datetime
 
-
-class TicketCreate(BaseModel):
+class TicketBase(BaseModel):
     description: str
     branch_location: str
-    customer_id: str
+
+
+class TicketCreate(TicketBase):
+    customer_id: int    
+
+
+class TicketResponse(TicketBase):
+    id: int
+    created_datetime: datetime
+    
